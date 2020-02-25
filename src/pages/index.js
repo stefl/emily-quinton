@@ -6,23 +6,12 @@ import SEO from "../components/seo"
 import BackgroundImage from "gatsby-background-image"
 import Image from 'gatsby-image'
 import SharingIcons from '../components/SharingIcons'
-import { createMedia } from "@artsy/fresnel"
-
-const { MediaContextProvider, Media } = createMedia({
-  breakpoints: {
-    sm: 0,
-    md: 768,
-    lg: 1024,
-    xl: 1192,
-  },
-})
-
+import { Media } from "../Media"
 
 function IndexPage({data}) {
   const image = data.file.childImageSharp.fluid
 
   return (
-    <MediaContextProvider>
     <Layout>
       <SEO
         keywords={[`emily`, `quinton`]}
@@ -30,27 +19,42 @@ function IndexPage({data}) {
       />
 
       <Media greaterThanOrEqual="md">
-        <div className="fixed w-100 h-screen top-0 left-0 right-0 bottom-0" style={{zIndex: '-1'}}>
-          <div className="w-100 h-screen flex">
-            <BackgroundImage fluid={image} className="flex flex-row flex-1" />
-            <div className="flex flex-row flex-1" />
-          </div>
-        </div>
+        {(mediaClassNames) => {
+          return (
+            <div className={`${mediaClassNames} fixed w-100 h-screen top-0 left-0 right-0 bottom-0`} style={{zIndex: '-1'}}>
+              <div className="w-100 h-screen flex">
+                <BackgroundImage fluid={image} className="flex flex-row flex-1" />
+                <div className="flex flex-row flex-1" />
+              </div>
+            </div>
+          )
+        }}
       </Media>
 
       <div className="flex font-sans min-h-screen text-gray-900">
         <Media greaterThanOrEqual="md">
-          <div className="flex flex-row flex-1" />
+          {(mediaClassNames) => {
+          return (
+            <div className={`${mediaClassNames} flex flex-row flex-1`} />
+          )}}
         </Media>
         
         <main className="flex flex-row flex-1 justify-center max-w-4xl mx-auto md:p-8 w-full">
           <section className="text-left p-5">
             <div className="max-w-md mx-auto">
               <Media lessThan="md">
-                <Image fluid={image} className="w-full" />
+                {(mediaClassNames) => {
+                  return (
+                    <Image fluid={image} className={`${mediaClassNames} w-full`} />
+                  )
+                }}
               </Media>
               <Media greaterThanOrEqual="md">
-                <hr className="font-display max-w-xs mx-auto border-b border-gray-400 mb-12" />
+                {(mediaClassNames) => {
+                  return (
+                    <hr className={`${mediaClassNames} font-display max-w-xs mx-auto border-b border-gray-400 mb-12`} />
+                  )
+                }}
               </Media>
 
               <div className="mb-12">
@@ -104,7 +108,6 @@ function IndexPage({data}) {
         </main>
       </div>
     </Layout>
-    </MediaContextProvider>
   );
 }
 

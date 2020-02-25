@@ -8,3 +8,7 @@ export const onClientEntry = () => {
     console.log(`# IntersectionObserver is polyfilled!`)
   }
 }
+
+import { Boot } from "./src/Boot"
+
+export const wrapRootElement = Boot
