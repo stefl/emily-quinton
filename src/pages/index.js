@@ -1,13 +1,56 @@
-import React from "react"
+import React, {useEffect, useState} from "react"
 import PropTypes from 'prop-types'
 import { graphql } from "gatsby"
 import Layout from "../components/layout"
 import SEO from "../components/seo"
 import BackgroundImage from "gatsby-background-image"
+import Image from 'gatsby-image'
 import SharingIcons from '../components/SharingIcons'
+
+function useMedia(queries, values, defaultValue) {
+  // Array containing a media query list for each query
+  const mediaQueryLists = queries.map(q => window.matchMedia(q));
+
+  // Function that gets value based on matching media query
+  const getValue = () => {
+    // Get index of first media query that matches
+    const index = mediaQueryLists.findIndex(mql => mql.matches);
+    // Return related value or defaultValue if none
+    return typeof values[index] !== 'undefined' ? values[index] : defaultValue;
+  };
+
+  // State and setter for matched value
+  const [value, setValue] = useState(getValue);
+
+  useEffect(
+    () => {
+      // Event listener callback
+      // Note: By defining getValue outside of useEffect we ensure that it has ...
+      // ... current values of hook args (as this hook callback is created once on mount).
+      const handler = () => setValue(getValue);
+      // Set a listener for each media query with above handler as callback.
+      mediaQueryLists.forEach(mql => mql.addListener(handler));
+      // Remove listeners on cleanup
+      return () => mediaQueryLists.forEach(mql => mql.removeListener(handler));
+    },
+    [] // Empty array ensures effect is only run on mount and unmount
+  );
+
+  return value;
+}
 
 function IndexPage({data}) {
   const image = data.file.childImageSharp.fluid
+
+  const breakpoint = useMedia(
+    // Media queries
+    ['(min-width: 1500px)', '(min-width: 1000px)', '(min-width: 600px)'],
+    // Column counts (relates to above media queries by array index)
+    [4, 3, 2],
+    // Default column count
+    1
+  );
+
   return (
     <Layout>
       <SEO
@@ -15,22 +58,23 @@ function IndexPage({data}) {
         title="Emily Quinton"
       />
 
-      <div className="fixed w-100 h-screen top-0 left-0 right-0 bottom-0" style={{zIndex: '-1'}}>
+      {(breakpoint > 2) && <div className="fixed w-100 h-screen top-0 left-0 right-0 bottom-0" style={{zIndex: '-1'}}>
         <div className="w-100 h-screen flex">
           <BackgroundImage fluid={image} className="flex flex-row flex-1" />
           <div className="flex flex-row flex-1" />
         </div>
-      </div>
+      </div>}
 
       <div className="flex font-sans min-h-screen text-gray-900">
-        <div className="flex flex-row flex-1" />
+        {(breakpoint > 2) && <div className="flex flex-row flex-1" />}
         
-        <main className="flex flex-row flex-1 md:justify-center max-w-4xl mx-auto md:p-8 w-full">
+        <main className="flex flex-row flex-1 justify-center max-w-4xl mx-auto md:p-8 w-full">
+
 
           <section className="text-left p-5">
             <div className="max-w-md mx-auto">
-
-              <hr className="font-display max-w-xs mx-auto border-b border-gray-400 mb-12" />
+              {(breakpoint <= 2) && <Image fluid={image} className="w-full" />}
+              {(breakpoint > 2) && <hr className="font-display max-w-xs mx-auto border-b border-gray-400 mb-12" />}
 
               <div className="mb-12">
                 <h1 className="font-display text-2xl tracking-widest text-center mt-12">Emily Quinton</h1>
